@@ -48,10 +48,21 @@ function App() {
     setPrompt('')
   }
 
-  const toggleAttachmentMenu = () => setAttachmentOpen((isOpen) => !isOpen)
-
   const openFilePicker = () => {
-    fileInputRef.current?.click()
+    const input = fileInputRef.current
+    if (!input) return
+
+    // showPicker keeps the action tied to the menu click on supported browsers;
+    // click() provides the fallback used by Safari and older mobile browsers.
+    if (typeof input.showPicker === 'function') {
+      try {
+        input.showPicker()
+      } catch {
+        input.click()
+      }
+    } else {
+      input.click()
+    }
     setAttachmentOpen(false)
   }
 
@@ -95,7 +106,7 @@ function App() {
           <h1>Hi Fitforlifevitthal, how can I help you<br className="desktop-break" /> today?</h1>
           <form className="composer" onSubmit={submit}>
             <div className="attachment-wrap">
-              <button type="button" className={`icon-button ${attachmentOpen ? 'is-open' : ''}`} aria-label={attachmentOpen ? 'Close attachment menu' : 'Add attachment'} aria-expanded={attachmentOpen} onClick={toggleAttachmentMenu}>
+              <button type="button" className={`icon-button ${attachmentOpen ? 'is-open' : ''}`} aria-label={attachmentOpen ? 'Close attachment menu' : 'Add attachment'} aria-expanded={attachmentOpen} onClick={() => setAttachmentOpen((isOpen) => !isOpen)}>
                 <span className="attachment-icon" aria-hidden="true"><Plus className="plus-icon" size={25} /><X className="close-icon" size={25} /></span>
               </button>
               {attachmentOpen && (
