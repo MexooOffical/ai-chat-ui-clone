@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   Atom, ChevronDown, Clapperboard, Folder, Image, Library,
@@ -27,7 +27,7 @@ const tools = [
 ]
 
 const attachmentTools = [
-  { label: 'Attach Files', icon: Paperclip, locked: true },
+  { label: 'Attach Files', icon: Paperclip, locked: false },
   { label: 'Web Search', icon: Search, locked: true },
   { label: 'Compare', icon: SquareSplitHorizontal },
   { label: 'Deep Research', icon: Atom, locked: true },
@@ -40,6 +40,7 @@ function App() {
   const [attachmentOpen, setAttachmentOpen] = useState(false)
   const [model, setModel] = useState('Auto')
   const [selectedTool, setSelectedTool] = useState(null)
+  const fileInputRef = useRef(null)
 
   const submit = (event) => {
     event.preventDefault()
@@ -49,6 +50,17 @@ function App() {
 
   const toggleAttachmentMenu = () => {
     setAttachmentOpen((isOpen) => !isOpen)
+  }
+
+  const openFilePicker = () => {
+    setAttachmentOpen(false)
+    fileInputRef.current?.click()
+  }
+
+  const handleFilesSelected = (event) => {
+    // Keep the picker interaction ready for the next attachment. The selected
+    // files can be connected to upload handling when that backend is available.
+    event.target.value = ''
   }
 
   return (
@@ -94,7 +106,10 @@ function App() {
                 aria-expanded={attachmentOpen}
                 onClick={toggleAttachmentMenu}
               >
-                {attachmentOpen ? <X size={25} /> : <Plus size={25} />}
+                <span className="attachment-icon" aria-hidden="true">
+                  <Plus className="plus-icon" size={25} />
+                  <X className="close-icon" size={25} />
+                </span>
               </button>
               {attachmentOpen && (
                 <div className="attachment-menu" role="menu">
@@ -104,7 +119,7 @@ function App() {
                       role="menuitem"
                       className="attachment-item"
                       key={label}
-                      onClick={() => setAttachmentOpen(false)}
+                      onClick={label === 'Attach Files' ? openFilePicker : () => setAttachmentOpen(false)}
                     >
                       <Icon size={23} strokeWidth={1.8} />
                       <span>{label}</span>
@@ -114,6 +129,16 @@ function App() {
                 </div>
               )}
             </div>
+            <input
+              ref={fileInputRef}
+              className="file-input"
+              type="file"
+              accept="image/*,.pdf,.doc,.docx,.txt"
+              multiple
+              onChange={handleFilesSelected}
+              tabIndex="-1"
+              aria-hidden="true"
+            />
             <input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="What would you like to create?" aria-label="Prompt" />
             <div className="composer-actions">
               <div className="model-wrap">
