@@ -1,0 +1,97 @@
+import React, { useState } from 'react'
+import { createRoot } from 'react-dom/client'
+import {
+  Atom, BarChart3, ChevronDown, Clapperboard, Folder, Image, Library,
+  Menu, Mic, PanelLeft, PencilLine, Plus, Search, Send, Settings2,
+  Sparkles, SquareSplitHorizontal, UserRound, Video, X
+} from 'lucide-react'
+import './styles.css'
+
+const logo = 'https://aiashokrav1-ten.vercel.app/assets/ai-ashokra-logo.png'
+
+const navItems = [
+  { label: 'New Chat', icon: PencilLine, active: true },
+  { label: 'Video Studio', icon: Clapperboard, badge: 'PRO' },
+  { label: 'Slides', icon: SquareSplitHorizontal },
+  { label: 'Experts', icon: UserRound },
+  { label: 'Projects', icon: Folder },
+  { label: 'Library', icon: Library },
+]
+const tools = [
+  { label: 'Videos', icon: Video },
+  { label: 'Slides', icon: SquareSplitHorizontal },
+  { label: 'Images', icon: Image },
+  { label: 'Compare', icon: SquareSplitHorizontal },
+  { label: 'Deep Research', icon: Atom },
+]
+
+function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [prompt, setPrompt] = useState('')
+  const [modelOpen, setModelOpen] = useState(false)
+  const [model, setModel] = useState('Auto')
+  const [selectedTool, setSelectedTool] = useState(null)
+
+  const submit = (event) => {
+    event.preventDefault()
+    if (!prompt.trim()) return
+    setPrompt('')
+  }
+
+  return (
+    <div className="app-shell">
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div className="brand-row">
+          <img className="brand-logo" src={logo} alt="AI Ashokra logo" />
+          <span className="brand-name">AI Ashokra</span>
+          <div className="brand-actions">
+            <button aria-label="Search"><Search size={22} /></button>
+            <button aria-label="Collapse sidebar" onClick={() => setSidebarOpen(false)}><PanelLeft size={21} /></button>
+          </div>
+        </div>
+        <nav className="nav-list" aria-label="Main navigation">
+          {navItems.map(({ label, icon: Icon, active, badge }) => (
+            <button className={`nav-item ${active ? 'active' : ''}`} key={label}>
+              <Icon size={21} strokeWidth={1.7} />
+              <span>{label}</span>
+              {badge && <small>{badge}</small>}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <button className="profile-card">
+            <span className="avatar">F</span>
+            <span className="profile-copy"><strong>Fitforlifevitthal</strong><em>Free</em></span>
+            <ChevronDown size={17} />
+          </button>
+        </div>
+      </aside>
+      {sidebarOpen && <button className="backdrop" aria-label="Close sidebar" onClick={() => setSidebarOpen(false)} />}
+      <main className="main-content">
+        <button className="mobile-menu" aria-label="Open sidebar" onClick={() => setSidebarOpen(true)}><Menu size={23} /></button>
+        <section className="hero">
+          <div className="hero-glow" />
+          <h1>Hi Fitforlifevitthal, how can I help you<br className="desktop-break" /> today?</h1>
+          <form className="composer" onSubmit={submit}>
+            <button type="button" className="icon-button" aria-label="Add attachment"><Plus size={25} /></button>
+            <input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="What would you like to create?" aria-label="Prompt" />
+            <div className="composer-actions">
+              <div className="model-wrap">
+                <button type="button" className="model-button" onClick={() => setModelOpen(!modelOpen)}>{model}<ChevronDown size={15} /></button>
+                {modelOpen && <div className="model-menu">{['Auto', 'Fast', 'Reasoning'].map(option => <button type="button" key={option} onClick={() => { setModel(option); setModelOpen(false) }}>{option}</button>)}</div>}
+              </div>
+              <button type="button" className="mic-button" aria-label="Voice input"><Mic size={22} /></button>
+              {prompt && <button className="send-button" aria-label="Send prompt"><Send size={17} /></button>}
+            </div>
+          </form>
+          <div className="quick-tools">
+            {tools.map(({ label, icon: Icon }) => <button key={label} className={selectedTool === label ? 'selected' : ''} onClick={() => setSelectedTool(label)}><Icon size={20} strokeWidth={1.8} /><span>{label}</span></button>)}
+          </div>
+          <p className="privacy-note"><Sparkles size={13} /> AI Ashokra can make mistakes. Check important information.</p>
+        </section>
+      </main>
+    </div>
+  )
+}
+
+createRoot(document.getElementById('root')).render(<App />)
