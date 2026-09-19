@@ -48,18 +48,17 @@ function App() {
     setPrompt('')
   }
 
-  const toggleAttachmentMenu = () => {
-    setAttachmentOpen((isOpen) => !isOpen)
-  }
+  const toggleAttachmentMenu = () => setAttachmentOpen((isOpen) => !isOpen)
 
   const openFilePicker = () => {
-    setAttachmentOpen(false)
+    // Start the native picker while this click is still a trusted browser gesture.
     fileInputRef.current?.click()
+    setAttachmentOpen(false)
   }
 
   const handleFilesSelected = (event) => {
-    // Keep the picker interaction ready for the next attachment. The selected
-    // files can be connected to upload handling when that backend is available.
+    // File upload/preview can be added here. Clear the value so the same file
+    // can be selected again later and still trigger onChange.
     event.target.value = ''
   }
 
@@ -99,70 +98,31 @@ function App() {
           <h1>Hi Fitforlifevitthal, how can I help you<br className="desktop-break" /> today?</h1>
           <form className="composer" onSubmit={submit}>
             <div className="attachment-wrap">
-              <button
-                type="button"
-                className={`icon-button ${attachmentOpen ? 'is-open' : ''}`}
-                aria-label={attachmentOpen ? 'Close attachment menu' : 'Add attachment'}
-                aria-expanded={attachmentOpen}
-                onClick={toggleAttachmentMenu}
-              >
-                <span className="attachment-icon" aria-hidden="true">
-                  <Plus className="plus-icon" size={25} />
-                  <X className="close-icon" size={25} />
-                </span>
+              <button type="button" className={`icon-button ${attachmentOpen ? 'is-open' : ''}`} aria-label={attachmentOpen ? 'Close attachment menu' : 'Add attachment'} aria-expanded={attachmentOpen} onClick={toggleAttachmentMenu}>
+                <span className="attachment-icon" aria-hidden="true"><Plus className="plus-icon" size={25} /><X className="close-icon" size={25} /></span>
               </button>
               {attachmentOpen && (
                 <div className="attachment-menu" role="menu">
                   {attachmentTools.map(({ label, icon: Icon, locked }) => (
-                    <button
-                      type="button"
-                      role="menuitem"
-                      className="attachment-item"
-                      key={label}
-                      onClick={label === 'Attach Files' ? openFilePicker : () => setAttachmentOpen(false)}
-                    >
-                      <Icon size={23} strokeWidth={1.8} />
-                      <span>{label}</span>
-                      {locked && <span className="lock-icon" aria-label="Locked">🔒</span>}
+                    <button type="button" role="menuitem" className="attachment-item" key={label} onClick={label === 'Attach Files' ? openFilePicker : () => setAttachmentOpen(false)}>
+                      <Icon size={23} strokeWidth={1.8} /><span>{label}</span>{locked && <span className="lock-icon" aria-label="Locked">🔒</span>}
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <input
-              ref={fileInputRef}
-              className="file-input"
-              type="file"
-              accept="image/*,.pdf,.doc,.docx,.txt"
-              multiple
-              onChange={handleFilesSelected}
-              tabIndex="-1"
-              aria-hidden="true"
-            />
+            <input ref={fileInputRef} className="file-input" type="file" accept="image/*,.pdf,.doc,.docx,.txt" multiple onChange={handleFilesSelected} tabIndex="-1" aria-label="Choose files to attach" />
             <input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="What would you like to create?" aria-label="Prompt" />
             <div className="composer-actions">
               <div className="model-wrap">
                 <button type="button" className="model-button" onClick={() => setModelOpen((isOpen) => !isOpen)}>{model}<ChevronDown size={15} /></button>
-                {modelOpen && (
-                  <div className="model-menu">
-                    {['Auto', 'Fast', 'Reasoning'].map((option) => (
-                      <button type="button" key={option} onClick={() => { setModel(option); setModelOpen(false) }}>{option}</button>
-                    ))}
-                  </div>
-                )}
+                {modelOpen && <div className="model-menu">{['Auto', 'Fast', 'Reasoning'].map((option) => <button type="button" key={option} onClick={() => { setModel(option); setModelOpen(false) }}>{option}</button>)}</div>}
               </div>
               <button type="button" className="mic-button" aria-label="Voice input"><Mic size={22} /></button>
               {prompt && <button type="submit" className="send-button" aria-label="Send prompt"><Send size={17} /></button>}
             </div>
           </form>
-          <div className="quick-tools">
-            {tools.map(({ label, icon: Icon }) => (
-              <button key={label} className={selectedTool === label ? 'selected' : ''} onClick={() => setSelectedTool(label)}>
-                <Icon size={20} strokeWidth={1.8} />
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
+          <div className="quick-tools">{tools.map(({ label, icon: Icon }) => <button key={label} className={selectedTool === label ? 'selected' : ''} onClick={() => setSelectedTool(label)}><Icon size={20} strokeWidth={1.8} /><span>{label}</span></button>)}</div>
           <p className="privacy-note"><Sparkles size={13} /> AI Ashokra can make mistakes. Check important information.</p>
         </section>
       </main>
