@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
-  Atom, BarChart3, ChevronDown, Clapperboard, Folder, Image, Library,
-  Menu, Mic, PanelLeft, PencilLine, Plus, Search, Send, Settings2,
+  Atom, ChevronDown, Clapperboard, Folder, Image, Library,
+  Menu, Mic, PanelLeft, Paperclip, PencilLine, Plus, Search, Send,
   Sparkles, SquareSplitHorizontal, UserRound, Video, X
 } from 'lucide-react'
 import './styles.css'
@@ -17,6 +17,7 @@ const navItems = [
   { label: 'Projects', icon: Folder },
   { label: 'Library', icon: Library },
 ]
+
 const tools = [
   { label: 'Videos', icon: Video },
   { label: 'Slides', icon: SquareSplitHorizontal },
@@ -25,10 +26,18 @@ const tools = [
   { label: 'Deep Research', icon: Atom },
 ]
 
+const attachmentTools = [
+  { label: 'Attach Files', icon: Paperclip, locked: true },
+  { label: 'Web Search', icon: Search, locked: true },
+  { label: 'Compare', icon: SquareSplitHorizontal },
+  { label: 'Deep Research', icon: Atom, locked: true },
+]
+
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [prompt, setPrompt] = useState('')
   const [modelOpen, setModelOpen] = useState(false)
+  const [attachmentOpen, setAttachmentOpen] = useState(false)
   const [model, setModel] = useState('Auto')
   const [selectedTool, setSelectedTool] = useState(null)
 
@@ -36,6 +45,10 @@ function App() {
     event.preventDefault()
     if (!prompt.trim()) return
     setPrompt('')
+  }
+
+  const toggleAttachmentMenu = () => {
+    setAttachmentOpen((isOpen) => !isOpen)
   }
 
   return (
@@ -73,19 +86,57 @@ function App() {
           <div className="hero-glow" />
           <h1>Hi Fitforlifevitthal, how can I help you<br className="desktop-break" /> today?</h1>
           <form className="composer" onSubmit={submit}>
-            <button type="button" className="icon-button" aria-label="Add attachment"><Plus size={25} /></button>
-            <input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="What would you like to create?" aria-label="Prompt" />
+            <div className="attachment-wrap">
+              <button
+                type="button"
+                className={`icon-button ${attachmentOpen ? 'is-open' : ''}`}
+                aria-label={attachmentOpen ? 'Close attachment menu' : 'Add attachment'}
+                aria-expanded={attachmentOpen}
+                onClick={toggleAttachmentMenu}
+              >
+                {attachmentOpen ? <X size={25} /> : <Plus size={25} />}
+              </button>
+              {attachmentOpen && (
+                <div className="attachment-menu" role="menu">
+                  {attachmentTools.map(({ label, icon: Icon, locked }) => (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="attachment-item"
+                      key={label}
+                      onClick={() => setAttachmentOpen(false)}
+                    >
+                      <Icon size={23} strokeWidth={1.8} />
+                      <span>{label}</span>
+                      {locked && <span className="lock-icon" aria-label="Locked">🔒</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="What would you like to create?" aria-label="Prompt" />
             <div className="composer-actions">
               <div className="model-wrap">
-                <button type="button" className="model-button" onClick={() => setModelOpen(!modelOpen)}>{model}<ChevronDown size={15} /></button>
-                {modelOpen && <div className="model-menu">{['Auto', 'Fast', 'Reasoning'].map(option => <button type="button" key={option} onClick={() => { setModel(option); setModelOpen(false) }}>{option}</button>)}</div>}
+                <button type="button" className="model-button" onClick={() => setModelOpen((isOpen) => !isOpen)}>{model}<ChevronDown size={15} /></button>
+                {modelOpen && (
+                  <div className="model-menu">
+                    {['Auto', 'Fast', 'Reasoning'].map((option) => (
+                      <button type="button" key={option} onClick={() => { setModel(option); setModelOpen(false) }}>{option}</button>
+                    ))}
+                  </div>
+                )}
               </div>
               <button type="button" className="mic-button" aria-label="Voice input"><Mic size={22} /></button>
-              {prompt && <button className="send-button" aria-label="Send prompt"><Send size={17} /></button>}
+              {prompt && <button type="submit" className="send-button" aria-label="Send prompt"><Send size={17} /></button>}
             </div>
           </form>
           <div className="quick-tools">
-            {tools.map(({ label, icon: Icon }) => <button key={label} className={selectedTool === label ? 'selected' : ''} onClick={() => setSelectedTool(label)}><Icon size={20} strokeWidth={1.8} /><span>{label}</span></button>)}
+            {tools.map(({ label, icon: Icon }) => (
+              <button key={label} className={selectedTool === label ? 'selected' : ''} onClick={() => setSelectedTool(label)}>
+                <Icon size={20} strokeWidth={1.8} />
+                <span>{label}</span>
+              </button>
+            ))}
           </div>
           <p className="privacy-note"><Sparkles size={13} /> AI Ashokra can make mistakes. Check important information.</p>
         </section>
