@@ -27,10 +27,10 @@ const tools = [
 ]
 
 const attachmentTools = [
-  { label: 'Attach Files', icon: Paperclip, locked: false },
-  { label: 'Web Search', icon: Search, locked: true },
+  { label: 'Attach Files', icon: Paperclip },
+  { label: 'Web Search', icon: Search },
   { label: 'Compare', icon: SquareSplitHorizontal },
-  { label: 'Deep Research', icon: Atom, locked: true },
+  { label: 'Deep Research', icon: Atom },
 ]
 
 function App() {
@@ -51,14 +51,11 @@ function App() {
   const toggleAttachmentMenu = () => setAttachmentOpen((isOpen) => !isOpen)
 
   const openFilePicker = () => {
-    // Start the native picker while this click is still a trusted browser gesture.
     fileInputRef.current?.click()
     setAttachmentOpen(false)
   }
 
   const handleFilesSelected = (event) => {
-    // File upload/preview can be added here. Clear the value so the same file
-    // can be selected again later and still trigger onChange.
     event.target.value = ''
   }
 
@@ -103,9 +100,9 @@ function App() {
               </button>
               {attachmentOpen && (
                 <div className="attachment-menu" role="menu">
-                  {attachmentTools.map(({ label, icon: Icon, locked }) => (
+                  {attachmentTools.map(({ label, icon: Icon }) => (
                     <button type="button" role="menuitem" className="attachment-item" key={label} onClick={label === 'Attach Files' ? openFilePicker : () => setAttachmentOpen(false)}>
-                      <Icon size={23} strokeWidth={1.8} /><span>{label}</span>{locked && <span className="lock-icon" aria-label="Locked">🔒</span>}
+                      <Icon size={23} strokeWidth={1.8} /><span>{label}</span>
                     </button>
                   ))}
                 </div>
